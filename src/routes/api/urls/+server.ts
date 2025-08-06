@@ -4,6 +4,7 @@ import { generateUniqueSlug, validateUrl } from '$lib/url';
 import { verifyToken } from '$lib/auth';
 
 const prisma = new PrismaClient();
+const isHttps = process.env.HTTPS_MODE === "true";
 
 export async function POST({ request }: { request: Request }) {
 	try {
@@ -65,7 +66,7 @@ export async function POST({ request }: { request: Request }) {
 				id: url.id,
 				originalUrl: url.originalUrl,
 				slug: url.slug,
-				shortUrl: `${new URL(request.url).origin}/${url.slug}`,
+				shortUrl: `${isHttps ? 'https' : 'http'}://${new URL(request.url).host}/${url.slug}`,
 				title: url.title,
 				description: url.description,
 				expiresAt: url.expiresAt,

@@ -62,6 +62,7 @@ A comprehensive short URL generator built with SvelteKit, featuring advanced ana
    # Create .env file
    echo 'DATABASE_URL="file:./dev.db"' > .env
    echo 'JWT_SECRET="your-super-secret-jwt-key-change-this-in-production"' >> .env
+   echo 'HTTPS_MODE="false"' >> .env
    ```
 
 4. **Set up the database**
