@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  urls      Url[]
+}
+
+model Url {
+  id          String   @id @default(cuid())
+  originalUrl String
+  slug        String   @unique
+  title       String?
+  description String?
+  isCustom    Boolean  @default(false)
+  expiresAt   DateTime?
+  isActive    Boolean  @default(true)
+  password    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  clicks      Click[]  @relation("UrlClicks")
+}
+
+model Click {
+  id        String   @id @default(cuid())
+  urlId     String
+  url       Url      @relation("UrlClicks", fields: [urlId], references: [id], onDelete: Cascade)
+  ip        String?
+  userAgent String?
+  referer   String?
+  country   String?
+  city      String?
+  region    String?
+  timestamp DateTime @default(now())
+}
