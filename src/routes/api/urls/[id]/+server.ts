@@ -4,6 +4,7 @@ import { verifyToken, verifyPassword } from '$lib/auth';
 import { validateUrl } from '$lib/url';
 
 const prisma = new PrismaClient();
+const isHttps = process.env.HTTPS_MODE === "true";
 
 export async function PUT({ params, request }: { params: { id: string }, request: Request }) {
 	try {
@@ -66,7 +67,7 @@ export async function PUT({ params, request }: { params: { id: string }, request
 				id: updatedUrl.id,
 				originalUrl: updatedUrl.originalUrl,
 				slug: updatedUrl.slug,
-				shortUrl: `${new URL(request.url).origin.replace('/api/urls/' + params.id, '')}/${updatedUrl.slug}`,
+				shortUrl: `${isHttps ? 'https' : 'http'}://${new URL(request.url).host}/${updatedUrl.slug}`,
 				title: updatedUrl.title,
 				description: updatedUrl.description,
 				expiresAt: updatedUrl.expiresAt,

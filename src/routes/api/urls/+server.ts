@@ -106,7 +106,7 @@ export async function GET({ request }: { request: Request }) {
 		return json({
 			urls: urls.map(url => ({
 				...url,
-				shortUrl: `${new URL(request.url).origin}/${url.slug}`,
+				shortUrl: `${isHttps ? 'https' : 'http'}://${new URL(request.url).host}/${url.slug}`,
 				clickCount: url.clicks.length
 			}))
 		});
