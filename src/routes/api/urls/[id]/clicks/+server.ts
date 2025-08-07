@@ -61,4 +61,37 @@ export async function GET({ params, request }: { params: { id: string }, request
 		console.error('Click analytics error:', error);
 		return json({ error: 'Internal server error' }, { status: 500 });
 	}
+}
+
+export async function POST({ params, request }: { params: { id: string }, request: Request }) {
+	try {
+		// Find the URL
+		const url = await prisma.url.findUnique({ where: { id: params.id } });
+		if (!url) {
+			return json({ error: 'URL not found' }, { status: 404 });
+		}
+
+		// Track the click
+		const ip = request.headers.get('x-forwarded-for') || 
+				  request.headers.get('x-real-ip') || 
+				  'unknown';
+		const userAgent = request.headers.get('user-agent') || 'unknown';
+		const referer = request.headers.get('referer') || 'unknown';
+
+		console.log('Creating click with data:', { urlId: url.id, ip, userAgent, referer });
+
+		await prisma.click.create({
+			data: {
+				urlId: url.id,
+				ip,
+				userAgent,
+				referer
+			}
+		});
+
+		return json({ message: 'Click tracked successfully' });
+	} catch (error) {
+		console.error('Click tracking error:', error);
+		return json({ error: 'Internal server error' }, { status: 500 });
+	}
 } 

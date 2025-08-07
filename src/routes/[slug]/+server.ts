@@ -62,7 +62,8 @@ export async function GET({ params, request }: { params: { slug: string }, reque
 
 		console.log('Click recorded, redirecting to:', url.originalUrl);
 
-		// Redirect to original URL
+		// Use SvelteKit's redirect function for cleaner redirects
+		// This works better with proxies and handles CORS properly
 		throw redirect(302, url.originalUrl);
 	} catch (error) {
 		// Check if this is a redirect (which is expected behavior)

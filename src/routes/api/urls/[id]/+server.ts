@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
 import { PrismaClient } from '@prisma/client';
 import { verifyToken, verifyPassword } from '$lib/auth';
-import { validateUrl } from '$lib/url';
+import { validateUrl, normalizeUrl } from '$lib/url';
 
 const prisma = new PrismaClient();
 const isHttps = process.env.HTTPS_MODE === "true";
@@ -34,9 +34,14 @@ export async function PUT({ params, request }: { params: { id: string }, request
 
 		const { originalUrl, slug, title, description, expiresAt, password, isActive } = await request.json();
 
-		// Validate URL if provided
-		if (originalUrl && !validateUrl(originalUrl)) {
-			return json({ error: 'Invalid URL format' }, { status: 400 });
+		// Normalize URL if provided
+		let normalizedUrl: string | undefined;
+		if (originalUrl) {
+			try {
+				normalizedUrl = normalizeUrl(originalUrl);
+			} catch (error) {
+				return json({ error: 'Invalid URL format' }, { status: 400 });
+			}
 		}
 
 		// Check if slug is being changed and if it's available
@@ -51,7 +56,7 @@ export async function PUT({ params, request }: { params: { id: string }, request
 		const updatedUrl = await prisma.url.update({
 			where: { id: params.id },
 			data: {
-				...(originalUrl && { originalUrl }),
+				...(normalizedUrl && { originalUrl: normalizedUrl }),
 				...(slug && slug !== existingUrl.slug && { slug, isCustom: true }),
 				...(title !== undefined && { title }),
 				...(description !== undefined && { description }),

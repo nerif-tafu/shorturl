@@ -46,6 +46,8 @@ export async function POST({ params, request }: { params: { id: string }, reques
 		const userAgent = request.headers.get('user-agent') || 'unknown';
 		const referer = request.headers.get('referer') || 'unknown';
 
+		console.log('Creating click with data:', { urlId: url.id, ip, userAgent, referer });
+
 		await prisma.click.create({
 			data: {
 				urlId: url.id,
